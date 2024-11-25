@@ -93,3 +93,43 @@ test template should match with template in nested structure ;
 pattern cons($a, inner(@a)) ;
 input cons(:a, inner(:a)) ;
 output {a = :a} ;
+
+test empty path should match atom ;
+pattern {| |} ;
+input :a ;
+output {} ;
+
+test empty path should match structure ;
+pattern {| |} ;
+input cons(:a) ;
+output {} ;
+
+test path should match with single path ;
+pattern {| cons(^), cons(^), _ |} ;
+input cons(cons(:a)) ;
+output {} ;
+
+test path should capture with single path ;
+pattern {| cons(^, $a), cons(^, $b), $c |} ;
+input cons(cons(:c, :b), :a) ;
+output {a = :a, b = :b, c = :c} ;
+
+test path should match with templates on same level ;
+pattern {| cons($a, @a, ^), _ |} ;
+input cons(:a, :a, :b) ;
+output {a = :a} ;
+
+test path should match with templates on different levels ;
+pattern {| cons($a, ^), cons(@a, ^), @a |} ;
+input cons(:a, cons(:a, :a)) ;
+output {a = :a} ;
+
+test path should fail with templates on same level ;
+pattern {| cons($a, @a, ^), _ |} ;
+input cons(:a, :b, :c) ;
+output fail ;
+
+test path should fail with templates on different levels ;
+pattern {| cons($a, ^), cons(@a, ^), _ |} ;
+input cons(:a, cons(:b, :a)) ;
+output fail ;
