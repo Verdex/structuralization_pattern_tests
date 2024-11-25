@@ -1,6 +1,95 @@
-test should capture ; 
+test wild should match atom ;
+pattern _ ;
+input :a ;
+output {} ;
 
-pattern
-input
-output
+test wild should match structure ;
+pattern _ ;
+input cons(:a) ;
+output {} ;
 
+test capture should capture atom ;
+pattern $a ;
+input :a ;
+output {a = :a} ;
+
+test capture should capture structure ;
+pattern $a ;
+input cons(:a) ;
+output {a = cons(:a)} ;
+
+test capture should capture inner structure ;
+pattern cons($a) ;
+input cons(:a) ;
+output {a = :a} ;
+
+test capture should capture first inner structure ;
+pattern cons($a, _, _) ;
+input cons(:a, :b, :c) ;
+output {a = :a} ;
+
+test capture should capture second inner structure ;
+pattern cons(_, $a, _) ;
+input cons(:a, :b, :c) ;
+output {a = :b} ;
+
+test capture should capture third inner structure ;
+pattern cons(_, _, $a) ;
+input cons(:a, :b, :c) ;
+output {a = :c} ;
+
+test multiple captures should capture first two inner structure ;
+pattern cons($a, $b, _) ;
+input cons(:a, :b, :c) ;
+output {a = :a, b = :b} ;
+
+test multiple captures should capture last two inner structure ;
+pattern cons(_, $a, $b) ;
+input cons(:a, :b, :c) ;
+output {a = :b, b = :c} ;
+
+test multiple captures should capture outer two inner structure ;
+pattern cons($a, _, $b) ;
+input cons(:a, :b, :c) ;
+output {a = :a, b = :c} ;
+
+
+test structure should fail with incompatible structure type ;
+pattern cons(_) ;
+input other(:a) ;
+output fail ;
+
+test structure should fail with incompatible arity ;
+pattern cons(_) ;
+input cons(:a, :b) ;
+output fail ;
+
+test template should match atom ;
+pattern cons($a, @a) ;
+input cons(:a, :a) ;
+output {a = :a} ;
+
+test multiple templates should match atoms ;
+pattern cons($a, @a, $b, @b) ;
+input cons(:a, :a, :b, :b) ;
+output {a = :a, b = :b} ;
+
+test nested structures should match ;
+pattern cons(inner(_), _) ;
+input cons(inner(:a), :a) ;
+output {} ;
+
+test template should fail with incompatible atom ;
+pattern cons($a, @a) ;
+input cons(:a, :b) ;
+output fail ;
+
+test template should match with capture from nested structure ;
+pattern cons(inner($a), @a) ;
+input cons(inner(:a), :a) ;
+output {a = :a} ;
+
+test template should match with template in nested structure ;
+pattern cons($a, inner(@a)) ;
+input cons(:a, inner(:a)) ;
+output {a = :a} ;
